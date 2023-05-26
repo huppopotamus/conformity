@@ -1,0 +1,5 @@
+# User Files
+/.idea/
+
+# Dependencies
+/node_modules/
