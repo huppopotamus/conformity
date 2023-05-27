@@ -3,3 +3,10 @@
 
 # Dependencies
 /node_modules/
+
+# Jest
+/coverage/
+
+# Yarn
+!yarn.lock
+yarn**

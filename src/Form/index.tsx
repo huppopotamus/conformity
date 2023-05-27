@@ -1,15 +1,19 @@
-import React, { createContext, FC, useContext, useMemo } from "react";
+import React, { createContext, FC, useContext, useMemo, useReducer } from "react";
+import { FormItemProps } from "../conform";
 
 const Context = createContext({});
 export const useConform = () => useContext(Context);
 
 interface FormProps {
   name: string;
-  children: FC<FormItemProps>[] | FC<FormItemProps>
+  // children: FC<FormItemProps>[] | FC<FormItemProps>
 }
 
 // Context Provider
-const Form: FC<FormProps> = ({ name, children }) => {
+const Form: FC<FormProps> = ({ name, children, ...rest }) => {
+  const { reducer, initialState, initFromProps } = initReducer(name, rest);
+  const [state, dispatch] = useReducer(reducer, initialState, initFromProps);
+
   const value = useMemo(() => ({
     submit: () => handleFormSubmit
   }), []);

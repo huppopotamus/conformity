@@ -1,7 +1,9 @@
 import React from "react";
+import { useConform } from "./";
 
-interface FormItemProps {
+export interface FormItemProps {
   name?: string;
+  nonconformist?: boolean;
 }
 
 // Conform HOC
@@ -11,9 +13,15 @@ interface FormItemProps {
  *
  * @WrappedComponent Conforming component. Attaches to the nearest Conformity form unless otherwise specified.
  * @form Form name. Will seek the name of the nearest conformity form when not provided.
- * @nonconformist Optional. Will cause the WrappedComponent to ignore any forms and act as an independent field.
  */
-export const conform = (WrappedComponent, name) => ({ name }: FormItemProps) => {
+export const conform = (WrappedComponent, name) => ({ formName, ...rest }: FormItemProps) => {
+  const form = useConform(formName);
 
-  return <WrappedComponent form={name} {...props} />;
+  const ConformedComponent = React.cloneElement(WrappedComponent, {
+    name,
+    form,
+    ...rest,
+  })
+
+  return <ConformedComponent />;
 };
