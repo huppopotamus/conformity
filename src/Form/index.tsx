@@ -1,24 +1,24 @@
-import React, { createContext, FC, useContext, useMemo, useReducer } from "react";
-import { FormItemProps } from "../conform";
+import React, { createContext, FC, useContext, useMemo } from "react";
+import createForm from "./module";
 
 const Context = createContext({});
 export const useConform = () => useContext(Context);
 
 interface FormProps {
   name: string;
-  // children: FC<FormItemProps>[] | FC<FormItemProps>
+  children: React.ReactNode | React.ReactNode[]
 }
 
 // Context Provider
 const Form: FC<FormProps> = ({ name, children, ...rest }) => {
-  const { reducer, initialState, initFromProps } = initReducer(name, rest);
-  const [state, dispatch] = useReducer(reducer, initialState, initFromProps);
+  const [state, {}] = createForm(name);
 
   const value = useMemo(() => ({
+    ...state,
     submit: () => handleFormSubmit
   }), []);
 
-  const handleFormSubmit = (e) => {
+  const handleFormSubmit = (e: React.FormEventHandler<HTMLFormElement>) => {
     e.preventDefault();
     e.stopPropagation();
 

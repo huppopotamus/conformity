@@ -1,5 +1,5 @@
 import React from "react";
-import { useConform } from "./";
+import { useConform } from "../Form";
 
 export interface FormItemProps {
   name?: string;
@@ -15,13 +15,17 @@ export interface FormItemProps {
  * @form Form name. Will seek the name of the nearest conformity form when not provided.
  */
 export const conform = (WrappedComponent, name) => ({ formName, ...rest }: FormItemProps) => {
-  const form = useConform(formName);
+  const { fields } = useConform(formName);
+  // TODO: detect nearest form provider
+
+  const fieldState = fields[name];
 
   const ConformedComponent = React.cloneElement(WrappedComponent, {
     name,
     form,
+    ...fieldState,
     ...rest,
-  })
+  });
 
   return <ConformedComponent />;
 };
