@@ -11,18 +11,19 @@ interface FormProps {
 
 // Context Provider
 const Form: FC<FormProps> = ({ name, children, ...rest }) => {
-  const [state, {}] = createForm(name);
+  const { state, actions} = createForm(name);
 
   const value = useMemo(() => ({
     ...state,
+    ...actions,
     submit: () => handleFormSubmit
-  }), []);
+  }), [state, actions]);
 
-  const handleFormSubmit = (e: React.FormEventHandler<HTMLFormElement>) => {
+  const handleFormSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
     e.stopPropagation();
 
-    onSubmit?.();
+    console.log("submit");
   }
 
   return (

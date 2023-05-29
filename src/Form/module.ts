@@ -1,5 +1,4 @@
 import { Reducer, useReducer } from "react";
-import { FormItemProps } from "../conform";
 
 // Initialize
 let form;
@@ -13,34 +12,52 @@ const createForm = (formName: string, initFromState?: (state: FormState) => Form
   );
 
   return {
-    ...state,
+    state,
     actions: {
-      registerFields: (fields) => dispatch({ type: fieldsRegistered, payload: fields }),
+      registerField: (field: string) => dispatch({ type: fieldsRegistered, payload: field }),
+      onTouch: (field: string) => {
+        console.log(`${field} touched`);
+        dispatch({ type: fieldTouched, payload: field })
+      },
+      onChange: (field: string) => {
+        console.log(`${field} changed`);
+        dispatch({ type: fieldChanged, payload: field })
+      },
     }
   };
 };
 
-interface Lookup<T> { [index: string]: T } // TODO: make more global
-type FormState = {
+interface EntryState {
   valid: boolean;
   dirty: boolean;
   touched: boolean;
-  fields: Lookup<FormItemProps>;
-};
+  error: any | null;
+}
+
+interface Lookup<T> { [index: string]: T } // TODO: make more global
+interface FormState extends Omit<EntryState, "error"> {
+  fields: Lookup<EntryState>;
+  errors: any[] | null;
+}
 
 const initialState: FormState = {
   valid: true,
   dirty: false,
   touched: false,
+  errors: null,
   fields: {},
 };
 
 // Actions
 let actionRoot = `form/${form}`;
 const makeAction = (action: string) => `${actionRoot}/${action}`;
-const fieldsRegistered = makeAction("fields_registered");
+const fieldsRegistered = makeAction("field_registered");
+const fieldTouched = makeAction("field_touched");
+const fieldChanged = makeAction("field_changed");
 
-export const reducer: Reducer<FormState, { type: string; payload: any }> = (
+type Action = { type: string; payload: any; };
+// @ts-ignore
+export const reducer: Reducer<FormState, Action> = (
   state,
   { type, payload }) => {
   switch (type) {
@@ -48,9 +65,38 @@ export const reducer: Reducer<FormState, { type: string; payload: any }> = (
       return {
         ...state,
         fields: {
-          ...state,
-          [payload.fieldName]: {}, // TODO
+          ...state.fields,
+          [payload]: {
+            valid: true,
+            touched: false,
+            dirty: false,
+            error: null,
+          }, // TODO
         }
+      };
+    case fieldTouched:
+      return {
+        ...state,
+        touched: true,
+        fields: {
+          ...state.fields,
+          [payload]: {
+            ...state.fields[payload],
+            touched: true,
+          },
+        },
+      };
+    case fieldChanged:
+      return {
+        ...state,
+        dirty: true,
+        fields: {
+          ...state.fields,
+          [payload]: {
+            ...state.fields[payload],
+            dirty: true,
+          },
+        },
       };
     default:
       throw new Error(`No such action [${type}] exists on reducer ${actionRoot}`);
